@@ -11,11 +11,8 @@ def convert(number:int):
             (5, "Plang"),
             (7, "Plong"),
         ]
-    raindrop_sounds = ""
-    for kn, ks in raindrop_sound:
-        if is_factor(number, kn):
-            raindrop_sounds += ks
-    return raindrop_sounds if raindrop_sounds else str(number)
+    raindrop_sounds = [ks for kn, ks in raindrop_sound if is_factor(number, kn)]
+    return "".join(raindrop_sounds) if raindrop_sounds else str(number)
 
 
 def main():
