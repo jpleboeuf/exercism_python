@@ -6,15 +6,15 @@ def convert(number:int):
     def is_factor(n:int, f:int):
         return n % f == 0
 
-    raindrop_sound = {
-            3: "Pling",
-            5: "Plang",
-            7: "Plong",
-        }
+    raindrop_sound = [
+            (3, "Pling"),
+            (5, "Plang"),
+            (7, "Plong"),
+        ]
     raindrop_sounds = ""
-    for kn in raindrop_sound.keys():
+    for kn, ks in raindrop_sound:
         if is_factor(number, kn):
-            raindrop_sounds += raindrop_sound[kn]
+            raindrop_sounds += ks
     return raindrop_sounds if raindrop_sounds else str(number)
 
 
