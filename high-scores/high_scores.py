@@ -7,11 +7,11 @@ def latest(scores: List[int]) -> int:
 
 
 def personal_best(scores: List[int]) -> int:
-    return sorted(scores, reverse=True)[0]
+    return max(scores)
 
 
 def personal_top_three(scores: List[int]) -> List[int]:
-    return sorted(scores, reverse=True)[0:3]
+    return sorted(scores, reverse=True)[:3]
 
 
 def main():
