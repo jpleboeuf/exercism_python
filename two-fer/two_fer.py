@@ -1,7 +1,14 @@
+"""
+   This module offers a solution to
+    the "Two Fer" exercise on Exercism.io.
+"""
+
 import sys
+
 
 def two_fer(name:str = "you") -> str:
     return f"One for {name}, one for me."
+
 
 def main():
     argn = len(sys.argv)
