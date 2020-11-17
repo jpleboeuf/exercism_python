@@ -1,9 +1,14 @@
+"""
+   This module offers a solution to
+    the "Raindrops" exercise on Exercism.io.
+"""
+
 import sys
 
 
-def convert(number:int):
+def convert(number:int) -> str:
 
-    def is_factor(n:int, f:int):
+    def is_factor(n:int, f:int) -> bool:
         return n % f == 0
 
     raindrop_sound = [
@@ -17,7 +22,7 @@ def convert(number:int):
 
 def main():
 
-    def is_intstring(s:str):
+    def is_intstring(s:str) -> bool:
         try:
             int(s)
             return True
@@ -28,7 +33,7 @@ def main():
     if argn == 2 and is_intstring(sys.argv[1]):
         print(convert(int(sys.argv[1])))
     else:
-        raise SystemExit(f"Usage: {sys.argv[0]} [number:int]")
+        raise SystemExit(f"Usage: {sys.argv[0]} number:int")
 
 if __name__ == '__main__':
     main()
