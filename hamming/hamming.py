@@ -9,7 +9,7 @@ import sys
 def distance(strand_a: str, strand_b: str) -> int:
     if len(strand_a) != len(strand_b):
         raise ValueError("sequences not of equal length")
-    return len([np for np in zip(strand_a, strand_b) if np[0] != np[1]])
+    return [n_a == n_b for (n_a, n_b) in zip(strand_a, strand_b)].count(False)
 
 
 def main():
