@@ -1,6 +1,6 @@
 """
    This module offers a solution to
-    the "Word Count" exercise on Exercism.ioo.
+    the "Word Count" exercise on Exercism.io.
 """
 
 import sys
