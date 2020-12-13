@@ -4,13 +4,16 @@
 """
 
 import sys
-from typing import Dict
+
+from typing import Dict as DictType
+from collections import Counter
+from typing import Counter as CounterType
 
 from collections import namedtuple
 from types import SimpleNamespace
 
 
-def count_words(sentence:str) -> Dict[str, int]:
+def count_words(sentence:str) -> DictType[str, int]:
 
     CursorWindow = namedtuple('CursorWindow', ['prev', 'curr', 'next'])
 
@@ -18,7 +21,7 @@ def count_words(sentence:str) -> Dict[str, int]:
         """is the current char a joining apostrophe?"""
         return cw.prev.isalnum() and cw.curr == "'" and cw.next.isalnum()
 
-    word_count: Dict[str, int] = {}
+    word_count:CounterType[str] = Counter()
     cursor = SimpleNamespace()
     cursor.pos = -1
     word = SimpleNamespace()
@@ -36,10 +39,10 @@ def count_words(sentence:str) -> Dict[str, int]:
         else:
             if word.w: word.built = True
         if word.built or (word.w and cursor.win.next == '<END'):
-            word_count[word.w] = word_count.get(word.w, 0) + 1
+            word_count.update([word.w])
             word.w = ""
             word.built = False
-    return word_count
+    return dict(word_count)
 
 
 def main():
