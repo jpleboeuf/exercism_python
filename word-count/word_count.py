@@ -6,33 +6,39 @@
 import sys
 from typing import Dict
 
+from collections import namedtuple
+from types import SimpleNamespace
+
 
 def count_words(sentence:str) -> Dict[str, int]:
 
-    def is_ja(string:str, char_pos:int) -> bool:
-        """is char at pos a joining apostrophe?"""
-        return\
-                   ((char_pos-1 >= 0)\
-                    and string[char_pos-1].isalnum())\
-               and string[char_pos] == "'"\
-               and ((char_pos+1 < len(string))
-                    and string[char_pos+1].isalnum())
+    CursorWindow = namedtuple('CursorWindow', ['prev', 'curr', 'next'])
 
-    def add_word_to_count(count:Dict[str, int], word:str):
-        word = word.lower()
-        count[word] = count.get(word, 0) + 1
+    def is_ja(cw:CursorWindow) -> bool:
+        """is the current char a joining apostrophe?"""
+        return cw.prev.isalnum() and cw.curr == "'" and cw.next.isalnum()
 
     word_count: Dict[str, int] = {}
-    cur_word = ""
-    for i, c in enumerate(sentence):
-        if c.isalnum() or is_ja(sentence, i):
-            cur_word += c
+    cursor = SimpleNamespace()
+    cursor.pos = -1
+    word = SimpleNamespace()
+    word.w = ""
+    word.built = False
+    while cursor.pos+1 < (len_s := len(sentence)):
+        cursor.pos += 1
+        cursor.win = CursorWindow(*[\
+                sentence[cursor.pos-1] if cursor.pos-1 >= 0    else 'BEGIN>',\
+                sentence[cursor.pos],\
+                sentence[cursor.pos+1] if cursor.pos+1 < len_s else '<END'\
+            ])
+        if cursor.win.curr.isalnum() or is_ja(cursor.win):
+            word.w += cursor.win.curr.lower()
         else:
-            if cur_word:
-                add_word_to_count(word_count, cur_word)
-                cur_word = ""
-    if cur_word:
-        add_word_to_count(word_count, cur_word)
+            if word.w: word.built = True
+        if word.built or (word.w and cursor.win.next == '<END'):
+            word_count[word.w] = word_count.get(word.w, 0) + 1
+            word.w = ""
+            word.built = False
     return word_count
 
 
