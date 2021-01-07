@@ -18,11 +18,7 @@ def init_letter_values() -> Dict[str, int]:
             (["J", "X"],                 8),
             (["Q", "Z"],                10),
         ]
-    lv = {}
-    for letters, value in letter_values:
-        for letter in letters:
-            lv[letter] = value
-    return lv
+    return {letter: value for letters, value in letter_values for letter in letters}
 
 lv = init_letter_values()
 
