@@ -18,12 +18,15 @@ def init_letter_values() -> Dict[str, int]:
             (["J", "X"],                 8),
             (["Q", "Z"],                10),
         ]
-    return {letter: value for letters, value in letter_values for letter in letters}
+    return {letter: value
+                for letters, value in letter_values
+                for letter in letters
+            }
 
 lv = init_letter_values()
 
 def score(word:str) -> int:
-     return sum([lv[l] for l in word.upper()])
+    return sum([lv[l] for l in word.upper()])
 
 
 def main():
