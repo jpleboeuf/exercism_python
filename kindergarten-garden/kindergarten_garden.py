@@ -58,24 +58,34 @@ class Garden:
 def main():
     argn_cmd = len(sys.argv)-1
     argv_cmd = sys.argv[1:]
+
+    def print_garden_foreach_student(garden:Garden):
+        for student in garden.students:
+            print(f"{student}: {garden.plants(student)}")
+
+    def print_garden_for_student(garden:Garden, student:str):
+        print(f"{garden.plants(student)}")
+
+    def read_student_list(student_list:str) -> List[str]:
+        return [s for s in student_list.split(",") if s != ""]
+
     if argn_cmd >= 1:
+        argv_cmd_0_unesc = argv_cmd[0].replace("\\n", "\n")
         if argn_cmd == 1:
-            garden = Garden(argv_cmd[0].replace("\\n", "\n"))
-            for student in garden.students:
-                print(f"{student}: {garden.plants(student)}")
+            garden = Garden(argv_cmd_0_unesc)
+            print_garden_foreach_student(garden)
         elif argn_cmd == 2:
             if "," in argv_cmd[1]:
-                garden = Garden(argv_cmd[0].replace("\\n", "\n"),
-                    students=[s for s in argv_cmd[1].split(",") if s != ""])
-                for student in garden.students:
-                    print(f"{student}: {garden.plants(student)}")
+                garden = Garden(argv_cmd_0_unesc,
+                    students=read_student_list(argv_cmd[1]))
+                print_garden_foreach_student(garden)
             else:
-                garden = Garden(argv_cmd[0].replace("\\n", "\n"))
-                print(f"{garden.plants(argv_cmd[1])}")
+                garden = Garden(argv_cmd_0_unesc)
+                print_garden_for_student(garden, argv_cmd[1])
         elif argn_cmd == 3:
-            garden = Garden(argv_cmd[0].replace("\\n", "\n"),
-                students=[s for s in argv_cmd[1].split(",") if s != ""])
-            print(f"{garden.plants(argv_cmd[2])}")
+            garden = Garden(argv_cmd_0_unesc,
+                students=read_student_list(argv_cmd[1]))
+            print_garden_for_student(garden, argv_cmd[2])
     else:
         raise SystemExit(f"Usage: {sys.argv[0]} diagram [students,] [student]")
 
