@@ -44,12 +44,19 @@ class Garden:
             sorted(students) if students is not None else Garden.children
         self.garden: Dict[str, List[str]] =\
             { student: [] for student in self.students }
+        # Read the diagram of plants, split in 2 rows:
         diagram_rows = diagram.split("\n")
-        for dr_idx in range(0, len(diagram_rows[0]), 2):
-            self.garden[self.students[dr_idx // 2]] = [
-                    Garden.plant[diagram_rows[dr][dri]]
-                        for dr in (0, 1) for dri in (dr_idx, dr_idx+1)
-                ]
+        #  and group the plants in tuples,
+        #  each tuple containing the plants taken care of by a student:
+        plant_groups = zip(*  #  (the tuple unpacking applies to the sum)
+                # 2 plants from the first row:
+                  [iter(diagram_rows[0])] * 2
+                # and 2 plants from the second row:
+                + [iter(diagram_rows[1])] * 2
+            )
+        student_i = iter(self.students)
+        for plant_group in plant_groups:
+            self.garden[next(student_i)] = list(map(Garden.plant.get, plant_group))
 
     def plants(self, child:str) -> List[str]:
         return self.garden[child]
