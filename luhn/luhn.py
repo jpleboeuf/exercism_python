@@ -44,7 +44,7 @@ def main():
     argv_cmd = sys.argv[1:]
     if argn_cmd == 1:
         l = Luhn(argv_cmd[0])
-        print(f"Luhn algorithn validation → {l.valid()}")
+        print(f"Luhn algorithM validation → {l.valid()}")
     else:
         raise SystemExit(f"Usage: {sys.argv[0]} number")
 
