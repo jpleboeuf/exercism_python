@@ -8,8 +8,8 @@ import sys
 
 class Luhn:
 
-    def __init__(self, card_num:str):
-        self.num = card_num
+    def __init__(self, num:str):
+        self.num = num
 
     def valid(self) -> bool:
 
