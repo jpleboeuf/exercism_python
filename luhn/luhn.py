@@ -8,24 +8,34 @@ import sys
 
 class Luhn:
 
-    def __init__(self, num:str):
-        self.num = num
+    def __init__(self, num_in:str):
+        self.num_in = num_in
+        self.num_in_not_clean = True
+        try:
+            self.clean_num_in()
+            self.num_in_not_clean = False
+        except ValueError as ve:
+            print(ve)
+
+    def clean_num_in(self):
+        # Except space, all other non-digit characters are disallowed:
+        for c in self.num_in:
+            if not (c.isdigit() or c == ' '):
+                raise ValueError(f"{self.num_in}: non-digit characters are disallowed!")
+        # Strip spaces:
+        self.num: str = ''.join(c for c in self.num_in if c.isdigit())
+        # Strings of length 1 or less are not valid:
+        if len(self.num) <= 1:
+            raise ValueError(f"{self.num}: a string of length 1 or less is not valid!")
 
     def valid(self) -> bool:
 
-        # Except space, all other non-digit characters are disallowed:
-        for c in self.num:
-            if not (c.isdigit() or c == ' '):
-                return False
-        # Strip spaces:
-        num_clean: str = ''.join(c for c in self.num if c.isdigit())
-        # Strings of length 1 or less are not valid:
-        if len(num_clean) <= 1:
+        if self.num_in_not_clean:
             return False
 
         num_tmp: str = ""
         # Step 1:
-        for i, c in enumerate(reversed(num_clean), 1):
+        for i, c in enumerate(reversed(self.num), 1):
             d: int = 0
             if i % 2 == 0:
                 d2: int = int(c) * 2
