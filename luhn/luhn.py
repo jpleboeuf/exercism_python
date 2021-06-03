@@ -5,6 +5,8 @@
 
 import sys
 from enum import Enum
+from typing import List
+
 
 class Luhn:
 
@@ -42,20 +44,19 @@ class Luhn:
         if self.num_in_status != Luhn.NumStatus.NOT_DIRTY:
             return False
 
-        num_tmp: str = ""
+        num_digits: List[int] = [int(c) for c in self.num]
         # Step 1:
-        for i, c in enumerate(reversed(self.num), 1):
-            d: int = 0
+        num_2_digits: List[int] = []
+        for i, d in enumerate(reversed(num_digits), 1):
+            d_2: int = d
             if i % 2 == 0:
-                d2: int = int(c) * 2
-                d = d2 if d2 <= 9 else d2 - 9
-            else:
-                d = int(c)
-            num_tmp = str(d) + num_tmp
+                d_2_dbl: int = d_2 * 2
+                d_2 = d_2_dbl if d_2_dbl <= 9 else d_2_dbl - 9
+            num_2_digits.insert(0, d_2)
         # Step 2:
-        num_sum:int = sum(int(c) for c in num_tmp)
-        # Test:
-        return num_sum % 10 == 0
+        num_2_digits_sum: int = sum(d_2 for d_2 in num_2_digits)
+        # Step 3:
+        return num_2_digits_sum % 10 == 0
 
 
 def main():
