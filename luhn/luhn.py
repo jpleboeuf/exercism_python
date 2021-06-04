@@ -44,19 +44,20 @@ class Luhn:
         if self.num_in_status != Luhn.NumStatus.NOT_DIRTY:
             return False
 
-        num_digits: List[int] = [int(c) for c in self.num]
+        addends: List[int] = [int(c) for c in self.num]
         # Step 1:
-        num_2_digits: List[int] = []
-        for i, d in enumerate(reversed(num_digits), 1):
-            d_2: int = d
-            if i % 2 == 0:
-                d_2_dbl: int = d_2 * 2
-                d_2 = d_2_dbl if d_2_dbl <= 9 else d_2_dbl - 9
-            num_2_digits.insert(0, d_2)
+        for i in range(len(addends)-2, -1, -2):
+            # Loop
+            #  from the rightmost digit (excluding the check digit),
+            #  to the leftmost digit,
+            #  moving left and taking into account every second digit:
+            addends[i] *= 2
+            if addends[i] > 9:
+                addends[i] -= 9
         # Step 2:
-        num_2_digits_sum: int = sum(d_2 for d_2 in num_2_digits)
+        addends_sum: int = sum(a for a in addends)
         # Step 3:
-        return num_2_digits_sum % 10 == 0
+        return addends_sum % 10 == 0
 
 
 def main():
