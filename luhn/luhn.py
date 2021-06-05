@@ -41,7 +41,7 @@ class Luhn:
 
     def valid(self) -> bool:
 
-        if self.num_in_status != Luhn.NumStatus.NOT_DIRTY:
+        if self.num_in_status.value < Luhn.NumStatus.NOT_DIRTY.value:
             return False
 
         addends: List[int] = [int(c) for c in self.num]
@@ -57,7 +57,12 @@ class Luhn:
         # Step 2:
         addends_sum: int = sum(a for a in addends)
         # Step 3:
-        return addends_sum % 10 == 0
+        check_sum: int = addends_sum % 10
+        if check_sum == 0:
+            self.num_in_status = Luhn.NumStatus.VALID
+        else:
+            self.num_in_status = Luhn.NumStatus.NOT_VALID
+        return self.num_in_status == Luhn.NumStatus.VALID
 
 
 def main():
