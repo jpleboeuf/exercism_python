@@ -29,15 +29,15 @@ class Luhn:
     def clean_num_in(self):
         # Except space, all other non-digit characters are disallowed:
         for c in self.num_in:
-            if not (c.isdigit() or c == ' '):
+            if not (c.isdigit() or c == " "):
                 self.num_in_status = Luhn.NumStatus.DIRTY_CHR
                 raise ValueError(f"{self.num_in}: non-digit characters are disallowed!")
         # Strip spaces:
         self.num: str = ''.join(c for c in self.num_in if c.isdigit())
-        # Strings of length 1 or less are not valid:
+        # Numeric strings of length 1 or less are not valid:
         if len(self.num) <= 1:
             self.num_in_status = Luhn.NumStatus.DIRTY_LEN
-            raise ValueError(f"{self.num}: a string of length 1 or less is not valid!")
+            raise ValueError(f"{self.num}: a numeric string of length 1 or less is not valid!")
 
     def valid(self) -> bool:
 
