@@ -11,15 +11,16 @@ from typing import List
 class Luhn:
 
     class NumStatus(Enum):
+        UNKNOWN   = 0
         DIRTY_CHR = 1
         DIRTY_LEN = 2
         NOT_DIRTY = 3
         NOT_VALID = 4
-        VALID = 5
+        VALID     = 5
 
     def __init__(self, num_in:str):
         self.num_in:str = num_in
-        self.num_in_status:Luhn.NumStatus = None
+        self.num_in_status:Luhn.NumStatus = Luhn.NumStatus.UNKNOWN
         try:
             self.clean_num_in()
             self.num_in_status = Luhn.NumStatus.NOT_DIRTY
@@ -41,28 +42,35 @@ class Luhn:
 
     def valid(self) -> bool:
 
-        if self.num_in_status.value < Luhn.NumStatus.NOT_DIRTY.value:
-            return False
+        assert(self.num_in_status != Luhn.NumStatus.UNKNOWN)
 
-        addends: List[int] = [int(c) for c in self.num]
-        # Step 1:
-        for i in range(len(addends)-2, -1, -2):
-            # Loop
-            #  from the rightmost digit (excluding the check digit),
-            #  to the leftmost digit,
-            #  moving left and taking into account every second digit:
-            addends[i] *= 2
-            if addends[i] > 9:
-                addends[i] -= 9
-        # Step 2:
-        addends_sum: int = sum(a for a in addends)
-        # Step 3:
-        check_sum: int = addends_sum % 10
-        if check_sum == 0:
-            self.num_in_status = Luhn.NumStatus.VALID
+        if self.num_in_status == Luhn.NumStatus.NOT_DIRTY:
+
+            addends: List[int] = [int(c) for c in self.num]
+            # Step 1:
+            for i in range(len(addends)-2, -1, -2):
+                # Loop
+                #  from the rightmost digit (excluding the check digit),
+                #  to the leftmost digit,
+                #  moving left and taking into account every second digit:
+                addends[i] *= 2
+                if addends[i] > 9:
+                    addends[i] -= 9
+            # Step 2:
+            addends_sum: int = sum(a for a in addends)
+            # Step 3:
+            check_sum: int = addends_sum % 10
+
+            if check_sum == 0:
+                self.num_in_status = Luhn.NumStatus.VALID
+            else:
+                self.num_in_status = Luhn.NumStatus.NOT_VALID
+
+        if self.num_in_status.value < Luhn.NumStatus.NOT_DIRTY.value:
+            # Also: self.num_in_status != Luhn.NumStatus.UNKNOWN
+            return False
         else:
-            self.num_in_status = Luhn.NumStatus.NOT_VALID
-        return self.num_in_status == Luhn.NumStatus.VALID
+            return self.num_in_status == Luhn.NumStatus.VALID
 
 
 def main():
