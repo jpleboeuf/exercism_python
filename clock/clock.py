@@ -25,14 +25,10 @@ class Clock:
         return (self.hour == other.hour) and (self.minute == other.minute)
 
     def __add__(self, minutes:int):
-        hour_carry, minute = divmod(self.minute + minutes, 60)
-        day_carry, hour = divmod(self.hour + hour_carry, 24)
-        return Clock(hour, minute)
+        return Clock(self.hour, self.minute + minutes)
 
     def __sub__(self, minutes:int):
-        hour_uncarry, minute = divmod(self.minute - minutes, -60)
-        day_uncarry, hour = divmod(self.hour - hour_uncarry, -24)
-        return Clock(hour, minute)
+        return Clock(self.hour, self.minute - minutes)
 
 
 def main():
