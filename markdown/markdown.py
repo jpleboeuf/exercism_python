@@ -1,71 +1,89 @@
+"""
+   This module offers a solution to
+    the "Markdown" exercise on Exercism.io.
+"""
+
 import re
 
+def parse(markdown:str) -> str:
+    """parses the markdown string with Markdown syntax
+        and returns the associated HTML for that string"""
 
-def parse(markdown):
-    lines = markdown.split('\n')
-    res = ''
+    def parse_header(txt:str) -> str:
+        """parses header elements h6/h2/h1"""
+        if re.match('###### (.*)', txt) is not None:
+            txt = '<h6>' + txt[7:] + '</h6>'
+        elif re.match('## (.*)', txt) is not None:
+            txt = '<h2>' + txt[3:] + '</h2>'
+        elif re.match('# (.*)', line) is not None:
+            txt = '<h1>' + txt[2:] + '</h1>'
+        return txt
+
+    def parse_fe(txt:str) -> str:
+        """parses formatting elements strong/em"""
+        strong_mo = re.match('(.*)__(.*)__(.*)', txt)
+        if strong_mo:
+            txt = strong_mo.group(1) + '<strong>' + \
+                  strong_mo.group(2) + '</strong>' + \
+                  strong_mo.group(3)
+        em_mo = re.match('(.*)_(.*)_(.*)', txt)
+        if em_mo:
+            txt = em_mo.group(1) + '<em>' + \
+                  em_mo.group(2) + '</em>' + \
+                  em_mo.group(3)
+        return txt
+
+    def parse_p(txt:str) -> str:
+        """parses paragraph elements p"""
+        t_mo = re.match('<h|<ul|<li|<p', txt)
+        if not t_mo:
+            txt = '<p>' + txt + '</p>'
+        txt = parse_fe(txt)
+        return txt
+
     in_list = False
     in_list_append = False
-    for i in lines:
-        if re.match('###### (.*)', i) is not None:
-            i = '<h6>' + i[7:] + '</h6>'
-        elif re.match('## (.*)', i) is not None:
-            i = '<h2>' + i[3:] + '</h2>'
-        elif re.match('# (.*)', i) is not None:
-            i = '<h1>' + i[2:] + '</h1>'
-        m = re.match(r'\* (.*)', i)
-        if m:
+
+    def list_open(txt:str='') -> str:
+        """opens a list with <ul>"""
+        nonlocal in_list
+        in_list = True
+        txt = txt + '<ul>'
+        return txt
+
+    def list_close(txt:str='') -> str:
+        """closes a list with </ul>"""
+        nonlocal in_list_append
+        txt = '</ul>' + txt
+        in_list_append = False
+        return txt
+
+    def parse_list(txt:str) -> str:
+        """parses list elements li (ul)"""
+        nonlocal in_list, in_list_append
+        li_mo = re.match(r'\* (.*)', txt)
+        if li_mo:
+            txt = ''
             if not in_list:
-                in_list = True
-                is_bold = False
-                is_italic = False
-                curr = m.group(1)
-                m1 = re.match('(.*)__(.*)__(.*)', curr)
-                if m1:
-                    curr = m1.group(1) + '<strong>' + \
-                        m1.group(2) + '</strong>' + m1.group(3)
-                    is_bold = True
-                m1 = re.match('(.*)_(.*)_(.*)', curr)
-                if m1:
-                    curr = m1.group(1) + '<em>' + m1.group(2) + \
-                        '</em>' + m1.group(3)
-                    is_italic = True
-                i = '<ul><li>' + curr + '</li>'
-            else:
-                is_bold = False
-                is_italic = False
-                curr = m.group(1)
-                m1 = re.match('(.*)__(.*)__(.*)', curr)
-                if m1:
-                    is_bold = True
-                m1 = re.match('(.*)_(.*)_(.*)', curr)
-                if m1:
-                    is_italic = True
-                if is_bold:
-                    curr = m1.group(1) + '<strong>' + \
-                        m1.group(2) + '</strong>' + m1.group(3)
-                if is_italic:
-                    curr = m1.group(1) + '<em>' + m1.group(2) + \
-                        '</em>' + m1.group(3)
-                i = '<li>' + curr + '</li>'
+                txt = list_open(txt)
+            li_ct = li_mo.group(1)
+            li_ct = parse_fe(li_ct)
+            txt += '<li>' + li_ct + '</li>'
         else:
             if in_list:
-                in_list_append = True
                 in_list = False
+                in_list_append = True
+        return txt
 
-        m = re.match('<h|<ul|<p|<li', i)
-        if not m:
-            i = '<p>' + i + '</p>'
-        m = re.match('(.*)__(.*)__(.*)', i)
-        if m:
-            i = m.group(1) + '<strong>' + m.group(2) + '</strong>' + m.group(3)
-        m = re.match('(.*)_(.*)_(.*)', i)
-        if m:
-            i = m.group(1) + '<em>' + m.group(2) + '</em>' + m.group(3)
+    html = ''
+    md_lines = markdown.split('\n')
+    for line in md_lines:
+        line = parse_header(line)
+        line = parse_list(line)
+        line = parse_p(line)
         if in_list_append:
-            i = '</ul>' + i
-            in_list_append = False
-        res += i
+            line = list_close(line)
+        html += line
     if in_list:
-        res += '</ul>'
-    return res
+        html += list_close()
+    return html
