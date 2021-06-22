@@ -5,18 +5,18 @@
 
 import re
 
+HEADER_RE = re.compile(r"(#{6}|#{2}|#{1}) (.*)")
+
 def parse(markdown:str) -> str:
     """parses the markdown string with Markdown syntax
         and returns the associated HTML for that string"""
 
     def parse_header(txt:str) -> str:
         """parses header elements h6/h2/h1"""
-        if re.match('###### (.*)', txt) is not None:
-            txt = '<h6>' + txt[7:] + '</h6>'
-        elif re.match('## (.*)', txt) is not None:
-            txt = '<h2>' + txt[3:] + '</h2>'
-        elif re.match('# (.*)', line) is not None:
-            txt = '<h1>' + txt[2:] + '</h1>'
+        if header_mo := HEADER_RE.match(txt):
+            header_level = len(header_mo.group(1))
+            header_content = header_mo.group(2)
+            txt = f"<h{header_level}>{header_content}</h{header_level}>"
         return txt
 
     def parse_fe(txt:str) -> str:
