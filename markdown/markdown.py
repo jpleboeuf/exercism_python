@@ -6,6 +6,8 @@
 import re
 
 HEADER_RE = re.compile(r"(#{6}|#{2}|#{1}) (.*)")
+STRONG_RE = re.compile(r"__(.*?)__")
+EM_RE = re.compile(r"_(.*?)_")
 
 def parse(markdown:str) -> str:
     """parses the markdown string with Markdown syntax
@@ -21,16 +23,8 @@ def parse(markdown:str) -> str:
 
     def parse_fe(txt:str) -> str:
         """parses formatting elements strong/em"""
-        strong_mo = re.match('(.*)__(.*)__(.*)', txt)
-        if strong_mo:
-            txt = strong_mo.group(1) + '<strong>' + \
-                  strong_mo.group(2) + '</strong>' + \
-                  strong_mo.group(3)
-        em_mo = re.match('(.*)_(.*)_(.*)', txt)
-        if em_mo:
-            txt = em_mo.group(1) + '<em>' + \
-                  em_mo.group(2) + '</em>' + \
-                  em_mo.group(3)
+        txt = STRONG_RE.sub(r"<strong>\1</strong>", txt)
+        txt = EM_RE.sub(r"<em>\1</em>", txt)
         return txt
 
     def parse_p(txt:str) -> str:
