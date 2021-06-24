@@ -7,11 +7,14 @@ import re
 
 HEADER_RE = re.compile(r"(#{6}|#{2}|#{1}) (.*)")
 STRONG_RE = re.compile(r"__(.*?)__")
+LIST_RE = re.compile(r"\* (.*)")
 EM_RE = re.compile(r"_(.*?)_")
 
 def parse(markdown:str) -> str:
     """parses the markdown string with Markdown syntax
         and returns the associated HTML for that string"""
+
+    html = ''
 
     def parse_header(txt:str) -> str:
         """parses header elements h6/h2/h1"""
@@ -36,7 +39,6 @@ def parse(markdown:str) -> str:
         return txt
 
     in_list = False
-    in_list_append = False
 
     def list_open(txt:str='') -> str:
         """opens a list with <ul>"""
@@ -47,37 +49,33 @@ def parse(markdown:str) -> str:
 
     def list_close(txt:str='') -> str:
         """closes a list with </ul>"""
-        nonlocal in_list_append
-        txt = '</ul>' + txt
-        in_list_append = False
+        txt = txt + '</ul>'
         return txt
 
     def parse_list(txt:str) -> str:
         """parses list elements li (ul)"""
-        nonlocal in_list, in_list_append
-        li_mo = re.match(r'\* (.*)', txt)
+        nonlocal html
+        nonlocal in_list
+        li_mo = LIST_RE.match(txt)
         if li_mo:
             txt = ''
-            if not in_list:
+            if in_list:
+                html = html[:-5]
+            else:
                 txt = list_open(txt)
             li_ct = li_mo.group(1)
             li_ct = parse_fe(li_ct)
             txt += '<li>' + li_ct + '</li>'
+            txt = list_close(txt)
         else:
             if in_list:
                 in_list = False
-                in_list_append = True
         return txt
 
-    html = ''
     md_lines = markdown.split('\n')
     for line in md_lines:
         line = parse_header(line)
         line = parse_list(line)
         line = parse_p(line)
-        if in_list_append:
-            line = list_close(line)
         html += line
-    if in_list:
-        html += list_close()
     return html
