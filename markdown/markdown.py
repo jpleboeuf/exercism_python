@@ -35,7 +35,6 @@ def parse(markdown:str) -> str:
         t_mo = re.match('<h|<ul|<li|<p', txt)
         if not t_mo:
             txt = '<p>' + txt + '</p>'
-        txt = parse_fe(txt)
         return txt
 
     in_list = False
@@ -64,7 +63,6 @@ def parse(markdown:str) -> str:
             else:
                 txt = list_open(txt)
             li_ct = li_mo.group(1)
-            li_ct = parse_fe(li_ct)
             txt += '<li>' + li_ct + '</li>'
             txt = list_close(txt)
         else:
@@ -74,6 +72,7 @@ def parse(markdown:str) -> str:
 
     md_lines = markdown.split('\n')
     for line in md_lines:
+        line = parse_fe(line)
         line = parse_header(line)
         line = parse_list(line)
         line = parse_p(line)
