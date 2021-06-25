@@ -16,13 +16,11 @@ def parse(markdown:str) -> str:
 
     html = ''
 
-    def parse_header(txt:str) -> str:
+    def parse_header(header_mo) -> str:
         """parses header elements h6/h2/h1"""
-        if header_mo := HEADER_RE.match(txt):
-            header_level = len(header_mo.group(1))
-            header_content = header_mo.group(2)
-            txt = f"<h{header_level}>{header_content}</h{header_level}>"
-        return txt
+        header_level = len(header_mo.group(1))
+        header_content = header_mo.group(2)
+        return f"<h{header_level}>{header_content}</h{header_level}>"
 
     def parse_fe(txt:str) -> str:
         """parses formatting elements strong/em"""
@@ -32,10 +30,7 @@ def parse(markdown:str) -> str:
 
     def parse_p(txt:str) -> str:
         """parses paragraph elements p"""
-        t_mo = re.match('<h|<ul|<li|<p', txt)
-        if not t_mo:
-            txt = '<p>' + txt + '</p>'
-        return txt
+        return '<p>' + txt + '</p>'
 
     in_list = False
 
@@ -43,38 +38,36 @@ def parse(markdown:str) -> str:
         """opens a list with <ul>"""
         nonlocal in_list
         in_list = True
-        txt = txt + '<ul>'
-        return txt
+        return '<ul>' + txt
 
     def list_close(txt:str='') -> str:
         """closes a list with </ul>"""
-        txt = txt + '</ul>'
-        return txt
+        return txt + '</ul>'
 
-    def parse_list(txt:str) -> str:
+    def parse_list(li_mo) -> str:
         """parses list elements li (ul)"""
         nonlocal html
         nonlocal in_list
-        li_mo = LIST_RE.match(txt)
-        if li_mo:
-            txt = ''
-            if in_list:
-                html = html[:-5]
-            else:
-                txt = list_open(txt)
-            li_ct = li_mo.group(1)
-            txt += '<li>' + li_ct + '</li>'
-            txt = list_close(txt)
+        txt = ''
+        if in_list:
+            html = html[:-5]
+        else:
+            txt = list_open(txt)
+        li_ct = li_mo.group(1)
+        txt += '<li>' + li_ct + '</li>'
+        txt = list_close(txt)
+        return txt
+
+    md_lines = markdown.splitlines()
+    for line in md_lines:
+        line = parse_fe(line)
+        if header_mo := HEADER_RE.match(line):
+            line = parse_header(header_mo)
+        elif li_mo := LIST_RE.match(line):
+            line = parse_list(li_mo)
         else:
             if in_list:
                 in_list = False
-        return txt
-
-    md_lines = markdown.split('\n')
-    for line in md_lines:
-        line = parse_fe(line)
-        line = parse_header(line)
-        line = parse_list(line)
-        line = parse_p(line)
+            line = parse_p(line)
         html += line
     return html
