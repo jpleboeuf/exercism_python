@@ -34,17 +34,7 @@ def parse(markdown:str) -> str:
 
     in_list = False
 
-    def list_open(txt:str='') -> str:
-        """opens a list with <ul>"""
-        nonlocal in_list
-        in_list = True
-        return '<ul>' + txt
-
-    def list_close(txt:str='') -> str:
-        """closes a list with </ul>"""
-        return txt + '</ul>'
-
-    def parse_list(li_mo) -> str:
+    def parse_list(li_mo:re.Match) -> str:
         """parses list elements li (ul)"""
         nonlocal html
         nonlocal in_list
@@ -52,10 +42,11 @@ def parse(markdown:str) -> str:
         if in_list:
             html = html[:-5]
         else:
-            txt = list_open(txt)
+            in_list = True
+            txt = '<ul>' + txt
         li_ct = li_mo.group(1)
         txt += '<li>' + li_ct + '</li>'
-        txt = list_close(txt)
+        txt = txt + '</ul>'
         return txt
 
     md_lines = markdown.splitlines()
