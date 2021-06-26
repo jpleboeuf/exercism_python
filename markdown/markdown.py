@@ -16,7 +16,7 @@ def parse(markdown:str) -> str:
 
     html = ''
 
-    def parse_header(header_mo) -> str:
+    def parse_header(header_mo:re.Match) -> str:
         """parses header elements h6/h2/h1"""
         header_level = len(header_mo.group(1))
         header_content = header_mo.group(2)
