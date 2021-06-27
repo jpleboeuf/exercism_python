@@ -6,8 +6,8 @@
 import re
 
 HEADER_RE = re.compile(r"(#{6}|#{2}|#{1}) (.*)")
-STRONG_RE = re.compile(r"__(.*?)__")
-EM_RE = re.compile(r"_(.*?)_")
+STRONG_RE = re.compile(r"__(.*?)__")  # non-greedy matching
+EM_RE = re.compile(r"_(.*?)_")        # non-greedy matching
 LIST_RE = re.compile(r"\* (.*)")
 
 def parse(markdown:str) -> str:
