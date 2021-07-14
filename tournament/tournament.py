@@ -3,6 +3,7 @@
     the "Tournament" exercise on Exercism.io.
 """
 
+import sys
 from collections import defaultdict
 from typing import List, DefaultDict, Final
 
@@ -45,3 +46,18 @@ def gen_table(results:DefaultDict[str, List[int]]) -> List[str]:
 
 def tally(rows:List[str]) -> List[str]:
     return gen_table(parse_results(rows))
+
+
+def main():
+    argn_cmd = len(sys.argv)-1
+    argv_cmd = sys.argv[1:]
+
+    if argn_cmd >= 1:
+        for table_line in tally(argv_cmd):
+            print(table_line)
+    else:
+        raise SystemExit(
+            f"Usage: {sys.argv[0]} result... {{enclosed in doublequotes}}")
+
+if __name__ == '__main__':
+    main()
