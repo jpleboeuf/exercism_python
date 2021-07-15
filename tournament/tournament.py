@@ -6,21 +6,26 @@
 import sys
 from collections import defaultdict
 from typing import List, DefaultDict, Final
+from typing import NamedTuple
 
 
 def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
+    # pylint: disable=inconsistent-quotes
+    Match = NamedTuple('Match',
+        [('team_1', str), ('team_2', str), ('outcome', int)])
+    # pylint: enable=inconsistent-quotes
     results: DefaultDict[str, List[int]] = defaultdict(list)
     for row in rows:
-        r_e:str = row.split(";")
-        t_1:List[int] = results[r_e[0]]
-        t_2:List[int] = results[r_e[1]]
-        if r_e[2] == "draw":
+        match = Match(*row.split(";"))
+        t_1:List[int] = results[match.team_1]
+        t_2:List[int] = results[match.team_2]
+        if match.outcome == "draw":
             t_1.append(1)
             t_2.append(1)
-        elif r_e[2] == "win":
+        elif match.outcome == "win":
             t_1.append(3)
             t_2.append(0)
-        elif r_e[2] == "loss":
+        elif match.outcome == "loss":
             t_1.append(0)
             t_2.append(3)
     return dict(sorted(results.items(),
@@ -59,5 +64,5 @@ def main():
         raise SystemExit(
             f"Usage: {sys.argv[0]} result... {{enclosed in doublequotes}}")
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pylint: disable=inconsistent-quotes
     main()
