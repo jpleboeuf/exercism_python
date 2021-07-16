@@ -4,7 +4,6 @@
 """
 
 import sys
-from collections import defaultdict
 from typing import List, DefaultDict, Final
 from typing import NamedTuple
 
@@ -14,7 +13,7 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
     Match = NamedTuple('Match',
         [('team_1', str), ('team_2', str), ('outcome', int)])
     # pylint: enable=inconsistent-quotes
-    results: DefaultDict[str, List[int]] = defaultdict(list)
+    results: DefaultDict[str, List[int]] = DefaultDict(list)
     for row in rows:
         match = Match(*row.split(";"))
         t_1:List[int] = results[match.team_1]
