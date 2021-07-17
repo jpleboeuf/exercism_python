@@ -5,13 +5,20 @@
 
 import sys
 from typing import List, DefaultDict, Final
-from typing import NamedTuple
+from typing import NamedTuple, Literal
 
 
 def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
     # pylint: disable=inconsistent-quotes
     Match = NamedTuple('Match',
-        [('team_1', str), ('team_2', str), ('outcome', int)])
+        [
+            ('team_1', str),
+            ('team_2', str),
+            # typing.Literal
+            #  does not seem to be supported by pylint at this time
+            ('outcome', Literal[  # pylint: disable=unsubscriptable-object
+                "draw", "win", "loss"])
+        ])
     # pylint: enable=inconsistent-quotes
     results: DefaultDict[str, List[int]] = DefaultDict(list)
     for row in rows:
