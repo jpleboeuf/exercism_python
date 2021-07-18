@@ -20,11 +20,11 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
                 "draw", "win", "loss"])
         ])
     # pylint: enable=inconsistent-quotes
-    results: DefaultDict[str, List[int]] = DefaultDict(list)
+    points: DefaultDict[str, List[int]] = DefaultDict(list)
     for row in rows:
         match = Match(*row.split(";"))
-        t_1:List[int] = results[match.team_1]
-        t_2:List[int] = results[match.team_2]
+        t_1:List[int] = points[match.team_1]
+        t_2:List[int] = points[match.team_2]
         if match.outcome == "draw":
             t_1.append(1)
             t_2.append(1)
@@ -34,16 +34,16 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
         elif match.outcome == "loss":
             t_1.append(0)
             t_2.append(3)
-    return dict(sorted(results.items(),
+    return dict(sorted(points.items(),
         key=lambda item: (-sum(item[1]), item[0].upper())))
 
-def gen_table(results:DefaultDict[str, List[int]]) -> List[str]:
+def gen_table(points:DefaultDict[str, List[int]]) -> List[str]:
     # typing.Final not supported by pylint at this time
     #  https://github.com/PyCQA/pylint/issues/3197
     table_format:Final[str] = (  # pylint: disable=unsubscriptable-object
         "{0: <30} | {1: >2} | {2: >2} | {3: >2} | {4: >2} | {5: >2}" )
     table:List[str] = [table_format.format("Team", "MP", "W", "D", "L", "P")]
-    for t_name, t_points in results.items():
+    for t_name, t_points in points.items():
         table.append(table_format.format(
                     t_name,
                     len(t_points),
