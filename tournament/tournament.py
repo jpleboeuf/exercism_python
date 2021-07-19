@@ -6,6 +6,7 @@
 import sys
 from typing import List, DefaultDict, Final
 from typing import NamedTuple, Literal
+from typing import Dict, Tuple
 
 
 def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
@@ -19,21 +20,17 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
             ('outcome', Literal[  # pylint: disable=unsubscriptable-object
                 "draw", "win", "loss"])
         ])
+    outcome_points:Final[Dict[  # pylint: disable=unsubscriptable-object
+            Literal[  # pylint: disable=unsubscriptable-object
+                "draw", "win", "loss"],
+            Tuple[int, int]
+        ]] = {"draw": (1, 1), "win": (3, 0), "loss": (0, 3)}
     # pylint: enable=inconsistent-quotes
     points: DefaultDict[str, List[int]] = DefaultDict(list)
     for row in rows:
         match = Match(*row.split(";"))
-        t_1:List[int] = points[match.team_1]
-        t_2:List[int] = points[match.team_2]
-        if match.outcome == "draw":
-            t_1.append(1)
-            t_2.append(1)
-        elif match.outcome == "win":
-            t_1.append(3)
-            t_2.append(0)
-        elif match.outcome == "loss":
-            t_1.append(0)
-            t_2.append(3)
+        for team_i, team in enumerate(match[:2]):
+            points[team].append(outcome_points[match.outcome][team_i])
     return dict(sorted(points.items(),
         key=lambda item: (-sum(item[1]), item[0].upper())))
 
