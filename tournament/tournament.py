@@ -4,25 +4,27 @@
 """
 
 import sys
-from typing import List, DefaultDict, Final
-from typing import NamedTuple, Literal
-from typing import Dict, Tuple
+from typing import Final, Literal
+from typing import List
+from typing import Tuple, NamedTuple
+from typing import Dict, DefaultDict
 
 
 def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
     # pylint: disable=inconsistent-quotes
+    # typing.Literal does not seem to be supported by pylint at this time
+    MatchOutcome = Literal[  # pylint: disable=unsubscriptable-object
+        "draw", "win", "loss"]
     Match = NamedTuple('Match',
         [
             ('team_1', str),
             ('team_2', str),
-            # typing.Literal
-            #  does not seem to be supported by pylint at this time
-            ('outcome', Literal[  # pylint: disable=unsubscriptable-object
-                "draw", "win", "loss"])
+            ('outcome', MatchOutcome)
         ])
+    # typing.Final not supported by pylint at this time
+    #  https://github.com/PyCQA/pylint/issues/3197
     outcome_points:Final[Dict[  # pylint: disable=unsubscriptable-object
-            Literal[  # pylint: disable=unsubscriptable-object
-                "draw", "win", "loss"],
+            MatchOutcome,
             Tuple[int, int]
         ]] = {"draw": (1, 1), "win": (3, 0), "loss": (0, 3)}
     # pylint: enable=inconsistent-quotes
@@ -35,8 +37,6 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
         key=lambda item: (-sum(item[1]), item[0].upper())))
 
 def gen_table(points:DefaultDict[str, List[int]]) -> List[str]:
-    # typing.Final not supported by pylint at this time
-    #  https://github.com/PyCQA/pylint/issues/3197
     table_format:Final[str] = (  # pylint: disable=unsubscriptable-object
         "{0: <30} | {1: >2} | {2: >2} | {3: >2} | {4: >2} | {5: >2}" )
     table:List[str] = [table_format.format("Team", "MP", "W", "D", "L", "P")]
