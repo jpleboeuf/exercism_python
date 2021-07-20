@@ -11,6 +11,7 @@ from typing import Dict, DefaultDict
 
 
 def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
+    """loads the input into a point history for each team"""
     # pylint: disable=inconsistent-quotes
     # typing.Literal does not seem to be supported by pylint at this time
     MatchOutcome = Literal[  # pylint: disable=unsubscriptable-object
@@ -33,27 +34,41 @@ def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
         match = Match(*row.split(";"))
         for team_i, team in enumerate(match[:2]):
             points[team].append(outcome_points[match.outcome][team_i])
-    return dict(sorted(points.items(),
-        key=lambda item: (-sum(item[1]), item[0].upper())))
+    return points
 
-def gen_table(points:DefaultDict[str, List[int]]) -> List[str]:
+TallyData = Dict[
+    str, Dict[
+        Literal[  # pylint: disable=unsubscriptable-object
+            "MP", "W", "D", "L", "P"],
+        int]]
+
+def process_points(points:Dict[str, List[int]]) -> TallyData:
+    """generates the tally data from the point history of each team"""
+    tally_data:TallyData = dict()
+    for team_name, team_points in points.items():
+        tally_data[team_name] = {
+                "MP": len(team_points),
+                "W":  len([p for p in team_points if p == 3]),
+                "D":  len([p for p in team_points if p == 1]),
+                "L":  len([p for p in team_points if p == 0]),
+                "P":  sum(team_points),
+            }
+    return dict(sorted(tally_data.items(),
+        key=lambda item: (-item[1]["P"], item[0].upper())))
+
+def gen_table(tally_data:TallyData) -> List[str]:
+    """generates the tally table for output"""
+    table_column_names:Tuple[str, ...] = ("Team", "MP", "W", "D", "L", "P")
     table_format:Final[str] = (  # pylint: disable=unsubscriptable-object
         "{0: <30} | {1: >2} | {2: >2} | {3: >2} | {4: >2} | {5: >2}" )
-    table:List[str] = [table_format.format("Team", "MP", "W", "D", "L", "P")]
-    for t_name, t_points in points.items():
-        table.append(table_format.format(
-                    t_name,
-                    len(t_points),
-                    len([p for p in t_points if p == 3]),
-                    len([p for p in t_points if p == 1]),
-                    len([p for p in t_points if p == 0]),
-                    sum(t_points),
-                )
-            )
+    table:List[str] = [table_format.format(*table_column_names)]
+    for team_name, team_td in tally_data.items():
+        table.append(table_format.format(team_name,
+            *[team_td[ttd_key] for ttd_key in table_column_names[1:]]))
     return table
 
 def tally(rows:List[str]) -> List[str]:
-    return gen_table(parse_results(rows))
+    return gen_table(process_points(parse_results(rows)))
 
 
 def main():
