@@ -10,41 +10,46 @@ from typing import Tuple, NamedTuple
 from typing import Dict, DefaultDict
 
 
-def parse_results(rows:List[str]) -> DefaultDict[str, List[int]]:
+TeamPoints = DefaultDict[str, List[int]]
+
+def parse_results(rows:List[str]) -> TeamPoints:
     """loads the input into a point history for each team"""
     # pylint: disable=inconsistent-quotes
     # typing.Literal does not seem to be supported by pylint at this time
     MatchOutcome = Literal[  # pylint: disable=unsubscriptable-object
         "draw", "win", "loss"]
-    Match = NamedTuple('Match',
-        [
+    Match = NamedTuple('Match', [
             ('team_1', str),
             ('team_2', str),
             ('outcome', MatchOutcome)
         ])
     # typing.Final not supported by pylint at this time
     #  https://github.com/PyCQA/pylint/issues/3197
-    outcome_points:Final[Dict[  # pylint: disable=unsubscriptable-object
+    outcome_points: Final[Dict[  # pylint: disable=unsubscriptable-object
             MatchOutcome,
             Tuple[int, int]
         ]] = {"draw": (1, 1), "win": (3, 0), "loss": (0, 3)}
     # pylint: enable=inconsistent-quotes
-    points: DefaultDict[str, List[int]] = DefaultDict(list)
+    points: TeamPoints = TeamPoints(list)
     for row in rows:
         match = Match(*row.split(";"))
         for team_i, team in enumerate(match[:2]):
-            points[team].append(outcome_points[match.outcome][team_i])
+            ( points[team]  # pylint: disable=unsubscriptable-object
+                .append(outcome_points[match.outcome][team_i]) )
     return points
 
 TallyData = Dict[
-    str, Dict[
-        Literal[  # pylint: disable=unsubscriptable-object
-            "MP", "W", "D", "L", "P"],
-        int]]
+        str,
+        Dict[
+                Literal[  # pylint: disable=unsubscriptable-object
+                    "MP", "W", "D", "L", "P"],
+                int
+            ]
+    ]
 
-def process_points(points:Dict[str, List[int]]) -> TallyData:
+def process_points(points:TeamPoints) -> TallyData:
     """generates the tally data from the point history of each team"""
-    tally_data:TallyData = dict()
+    tally_data: TallyData = dict()
     for team_name, team_points in points.items():
         tally_data[team_name] = {
                 "MP": len(team_points),
