@@ -4,7 +4,7 @@
 """
 
 import sys
-from typing import Final, Literal
+from typing import Final, Literal, cast
 from typing import List
 from typing import Tuple, NamedTuple
 from typing import Dict, DefaultDict
@@ -23,6 +23,11 @@ def parse_results(rows:List[str]) -> TeamPoints:
             ('team_2', str),
             ('outcome', MatchOutcome)
         ])
+    def new_match(match_elems: List[str]) -> Match:
+        assert len(match_elems) == 3
+        assert match_elems[2] in ["draw", "win", "loss"]
+        return Match(match_elems[0], match_elems[1],
+            cast(MatchOutcome, match_elems[2]))
     # typing.Final not supported by pylint at this time
     #  https://github.com/PyCQA/pylint/issues/3197
     outcome_points: Final[Dict[  # pylint: disable=unsubscriptable-object
@@ -32,20 +37,15 @@ def parse_results(rows:List[str]) -> TeamPoints:
     # pylint: enable=inconsistent-quotes
     points: TeamPoints = TeamPoints(list)
     for row in rows:
-        match = Match(*row.split(";"))
+        match = new_match(row.split(";"))
         for team_i, team in enumerate(match[:2]):
             ( points[team]  # pylint: disable=unsubscriptable-object
                 .append(outcome_points[match.outcome][team_i]) )
     return points
 
-TallyData = Dict[
-        str,
-        Dict[
-                Literal[  # pylint: disable=unsubscriptable-object
-                    "MP", "W", "D", "L", "P"],
-                int
-            ]
-    ]
+TallyDataKey = Literal[  # pylint: disable=unsubscriptable-object
+    "MP", "W", "D", "L", "P"]
+TallyData = Dict[str, Dict[TallyDataKey, int]]
 
 def process_points(points:TeamPoints) -> TallyData:
     """generates the tally data from the point history of each team"""
@@ -64,12 +64,16 @@ def process_points(points:TeamPoints) -> TallyData:
 def gen_table(tally_data:TallyData) -> List[str]:
     """generates the tally table for output"""
     table_column_names:Tuple[str, ...] = ("Team", "MP", "W", "D", "L", "P")
+    def safely_cast_str_to_ttd_key(ttd_key:str) -> TallyDataKey:
+        assert ttd_key in ["MP", "W", "D", "L", "P"]
+        return cast(TallyDataKey, ttd_key)
     table_format:Final[str] = (  # pylint: disable=unsubscriptable-object
         "{0: <30} | {1: >2} | {2: >2} | {3: >2} | {4: >2} | {5: >2}" )
     table:List[str] = [table_format.format(*table_column_names)]
     for team_name, team_td in tally_data.items():
         table.append(table_format.format(team_name,
-            *[team_td[ttd_key] for ttd_key in table_column_names[1:]]))
+            *[team_td[safely_cast_str_to_ttd_key(ttd_key)]
+                for ttd_key in table_column_names[1:]]))
     return table
 
 def tally(rows:List[str]) -> List[str]:
